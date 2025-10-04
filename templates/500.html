@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Exoplanet Detection System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="card border-0">
+                <div class="card-body py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-triangle fa-5x text-warning mb-3"></i>
+                        <h1 class="display-1 text-danger">500</h1>
+                    </div>
+                    
+                    <h2 class="mb-3">System Malfunction</h2>
+                    <p class="lead text-muted mb-4">
+                        We have a problem! Our exoplanet detection system has encountered 
+                        an unexpected error. Our engineers are working to restore normal operations.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>What happened?</strong><br>
+                        The server encountered an internal error and was unable to complete your request.
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-muted">
+                            <strong>What you can do:</strong>
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Wait a few moments and try again</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Check if the model is properly trained</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Verify your input data format</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Return to the main dashboard</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-block">
+                        <button onclick="location.reload()" class="btn btn-primary">
+                            <i class="fas fa-sync-alt me-2"></i>Try Again
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-home me-2"></i>Return to Dashboard
+                        </a>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <i class="fas fa-tools fa-2x text-primary mb-2"></i>
+                                    <h6>System Status</h6>
+                                    <p class="small text-muted mb-0">
+                                        Check the system status and model information on the dashboard.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <i class="fas fa-question-circle fa-2x text-info mb-2"></i>
+                                    <h6>Need Help?</h6>
+                                    <p class="small text-muted mb-0">
+                                        Visit the About page for troubleshooting information and setup guide.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            Error ID: {{ request.endpoint or 'unknown' }}-{{ moment().format('YYYYMMDD-HHmmss') if moment else 'timestamp' }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

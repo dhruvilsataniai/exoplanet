@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Predict - Exoplanet Detection System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-search me-2"></i>
+                Exoplanet Prediction
+            </h1>
+            <p class="lead">
+                Enter planetary and stellar parameters to classify an object as a confirmed exoplanet, 
+                planetary candidate, or false positive.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Input Form -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Input Parameters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="prediction-form">
+                        <!-- Orbital Parameters -->
+                        <h6 class="text-primary mb-3">Orbital Parameters</h6>
+                        
+                        <div class="mb-3">
+                            <label for="orbital_period" class="form-label">
+                                Orbital Period <span class="text-muted">(days)</span>
+                                <i class="fas fa-info-circle" data-bs-toggle="tooltip" 
+                                   title="Time for one complete orbit around the star"></i>
+                            </label>
+                            <input type="number" class="form-control" id="orbital_period" 
+                                   name="orbital_period" step="0.01" required>
+                        </div>
+
+                        <!-- Transit Parameters -->
+                        <h6 class="text-primary mb-3">Transit Parameters</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="transit_duration" class="form-label">
+                                    Transit Duration <span class="text-muted">(hours)</span>
+                                </label>
+                                <input type="number" class="form-control" id="transit_duration" 
+                                       name="transit_duration" step="0.01" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="transit_depth" class="form-label">
+                                    Transit Depth <span class="text-muted">(ppm)</span>
+                                </label>
+                                <input type="number" class="form-control" id="transit_depth" 
+                                       name="transit_depth" step="1" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="impact_parameter" class="form-label">
+                                Impact Parameter <span class="text-muted">(0-1)</span>
+                                <i class="fas fa-info-circle" data-bs-toggle="tooltip" 
+                                   title="Distance between planet center and star center during transit"></i>
+                            </label>
+                            <input type="number" class="form-control" id="impact_parameter" 
+                                   name="impact_parameter" step="0.01" min="0" max="1">
+                        </div>
+
+                        <!-- Planet Parameters -->
+                        <h6 class="text-primary mb-3">Planet Parameters</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="planet_radius" class="form-label">
+                                    Planet Radius <span class="text-muted">(Earth radii)</span>
+                                </label>
+                                <input type="number" class="form-control" id="planet_radius" 
+                                       name="planet_radius" step="0.01" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="equilibrium_temp" class="form-label">
+                                    Equilibrium Temperature <span class="text-muted">(K)</span>
+                                </label>
+                                <input type="number" class="form-control" id="equilibrium_temp" 
+                                       name="equilibrium_temp" step="1">
+                            </div>
+                        </div>
+
+                        <!-- Stellar Parameters -->
+                        <h6 class="text-primary mb-3">Stellar Parameters</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="stellar_temp" class="form-label">
+                                    Stellar Temperature <span class="text-muted">(K)</span>
+                                </label>
+                                <input type="number" class="form-control" id="stellar_temp" 
+                                       name="stellar_temp" step="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="stellar_radius" class="form-label">
+                                    Stellar Radius <span class="text-muted">(Solar radii)</span>
+                                </label>
+                                <input type="number" class="form-control" id="stellar_radius" 
+                                       name="stellar_radius" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="stellar_magnitude" class="form-label">
+                                Stellar Magnitude
+                            </label>
+                            <input type="number" class="form-control" id="stellar_magnitude" 
+                                   name="stellar_magnitude" step="0.01">
+                        </div>
+
+                        <!-- Quality Parameters -->
+                        <h6 class="text-primary mb-3">Quality Parameters</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="false_positive_flag" class="form-label">
+                                    False Positive Flags <span class="text-muted">(count)</span>
+                                </label>
+                                <input type="number" class="form-control" id="false_positive_flag" 
+                                       name="false_positive_flag" min="0" value="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="koi_score" class="form-label">
+                                    KOI Score <span class="text-muted">(0-1)</span>
+                                </label>
+                                <input type="number" class="form-control" id="koi_score" 
+                                       name="koi_score" step="0.01" min="0" max="1">
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary" onclick="loadExample()">
+                                <i class="fas fa-lightbulb me-1"></i>Load Example
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearForm()">
+                                <i class="fas fa-eraser me-1"></i>Clear
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Predict
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Prediction Results
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="prediction-results" class="text-center text-muted">
+                        <i class="fas fa-info-circle fa-3x mb-3"></i>
+                        <p>Enter parameters and click "Predict" to see results</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Importance -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bar-chart me-2"></i>Feature Template
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="feature-template">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                            <span>Loading feature information...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Load feature template
+    loadFeatureTemplate();
+
+    // Form submission
+    document.getElementById('prediction-form').addEventListener('submit', handlePrediction);
+});
+
+async function loadFeatureTemplate() {
+    try {
+        const response = await fetch('/api/features/template');
+        const data = await response.json();
+        
+        if (data.template) {
+            const templateDiv = document.getElementById('feature-template');
+            let html = '<div class="table-responsive"><table class="table table-sm">';
+            html += '<thead><tr><th>Feature</th><th>Example</th><th>Unit</th></tr></thead><tbody>';
+            
+            for (const [feature, info] of Object.entries(data.template)) {
+                html += `<tr><td><small>${feature}</small></td><td><small>${info.example}</small></td><td><small>${info.unit}</small></td></tr>`;
+            }
+            
+            html += '</tbody></table></div>';
+            templateDiv.innerHTML = html;
+        }
+    } catch (error) {
+        console.error('Error loading feature template:', error);
+        document.getElementById('feature-template').innerHTML = 
+            '<div class="alert alert-warning">Could not load feature template</div>';
+    }
+}
+
+async function handlePrediction(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = {};
+    
+    // Convert form data to object
+    for (let [key, value] of formData.entries()) {
+        if (value !== '') {
+            data[key] = parseFloat(value) || value;
+        }
+    }
+    
+    // Show loading state
+    const resultsDiv = document.getElementById('prediction-results');
+    resultsDiv.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="spinner-border me-2" role="status"></div>
+            <span>Making prediction...</span>
+        </div>
+    `;
+    
+    try {
+        const response = await fetch('/api/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            displayPredictionResult(result);
+        } else {
+            throw new Error(result.error || 'Prediction failed');
+        }
+        
+    } catch (error) {
+        console.error('Prediction error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error: ${error.message}
+            </div>
+        `;
+    }
+}
+
+function displayPredictionResult(result) {
+    const resultsDiv = document.getElementById('prediction-results');
+    
+    // Determine result styling
+    let badgeClass, iconClass;
+    switch (result.prediction) {
+        case 'CONFIRMED':
+            badgeClass = 'bg-success';
+            iconClass = 'fas fa-check-circle';
+            break;
+        case 'CANDIDATE':
+            badgeClass = 'bg-warning';
+            iconClass = 'fas fa-question-circle';
+            break;
+        case 'FALSE_POSITIVE':
+            badgeClass = 'bg-danger';
+            iconClass = 'fas fa-times-circle';
+            break;
+        default:
+            badgeClass = 'bg-secondary';
+            iconClass = 'fas fa-circle';
+    }
+    
+    let html = `
+        <div class="text-center mb-4">
+            <i class="${iconClass} fa-4x text-${badgeClass.replace('bg-', '')} mb-3"></i>
+            <h3>
+                <span class="badge ${badgeClass}">${result.prediction.replace('_', ' ')}</span>
+            </h3>
+            <p class="lead">Confidence: ${(result.confidence * 100).toFixed(1)}%</p>
+        </div>
+        
+        <div class="mb-4">
+            <h6>Class Probabilities:</h6>
+            <div class="progress-stacked mb-2">
+    `;
+    
+    // Create stacked progress bar
+    for (const [className, probability] of Object.entries(result.probabilities)) {
+        const percentage = (probability * 100).toFixed(1);
+        let progressClass;
+        switch (className) {
+            case 'CONFIRMED': progressClass = 'bg-success'; break;
+            case 'CANDIDATE': progressClass = 'bg-warning'; break;
+            case 'FALSE_POSITIVE': progressClass = 'bg-danger'; break;
+            default: progressClass = 'bg-secondary';
+        }
+        
+        html += `
+            <div class="progress" role="progressbar" style="width: ${percentage}%">
+                <div class="progress-bar ${progressClass}" style="width: 100%"></div>
+            </div>
+        `;
+    }
+    
+    html += '</div>';
+    
+    // Add detailed probabilities
+    for (const [className, probability] of Object.entries(result.probabilities)) {
+        const percentage = (probability * 100).toFixed(1);
+        html += `
+            <div class="d-flex justify-content-between">
+                <span>${className.replace('_', ' ')}</span>
+                <strong>${percentage}%</strong>
+            </div>
+        `;
+    }
+    
+    html += `
+        </div>
+        <div class="text-muted">
+            <small>
+                <i class="fas fa-clock me-1"></i>
+                Predicted at: ${new Date(result.timestamp).toLocaleString()}
+            </small>
+        </div>
+    `;
+    
+    resultsDiv.innerHTML = html;
+}
+
+function loadExample() {
+    // Load example values (Earth-like planet around Sun-like star)
+    document.getElementById('orbital_period').value = '365.25';
+    document.getElementById('transit_duration').value = '13.0';
+    document.getElementById('transit_depth').value = '84';
+    document.getElementById('impact_parameter').value = '0.0';
+    document.getElementById('planet_radius').value = '1.0';
+    document.getElementById('equilibrium_temp').value = '288';
+    document.getElementById('stellar_temp').value = '5778';
+    document.getElementById('stellar_radius').value = '1.0';
+    document.getElementById('stellar_magnitude').value = '12.5';
+    document.getElementById('false_positive_flag').value = '0';
+    document.getElementById('koi_score').value = '0.9';
+}
+
+function clearForm() {
+    document.getElementById('prediction-form').reset();
+    document.getElementById('prediction-results').innerHTML = `
+        <div class="text-center text-muted">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <p>Enter parameters and click "Predict" to see results</p>
+        </div>
+    `;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,708 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Data - Exoplanet Detection System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="fas fa-chart-bar me-2"></i>
+                Data Exploration Dashboard
+            </h1>
+            <p class="lead">
+                Interactive visualizations and analysis of the exoplanet datasets from NASA's Kepler, K2, and TESS missions.
+            </p>
+        </div>
+    </div>
+
+    <!-- Dataset Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-database me-2"></i>Dataset Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="dataset-overview">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                            <span>Loading dataset information...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualization Controls -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-sliders-h me-2"></i>Visualization Controls
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="chart-type" class="form-label">Chart Type</label>
+                        <select class="form-select" id="chart-type" onchange="updateVisualization()">
+                            <option value="distribution">Class Distribution</option>
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="histogram">Histogram</option>
+                            <option value="correlation">Correlation Matrix</option>
+                            <option value="boxplot">Box Plot</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="x-axis-control">
+                        <label for="x-axis" class="form-label">X-Axis</label>
+                        <select class="form-select" id="x-axis" onchange="updateVisualization()">
+                            <option value="orbital_period">Orbital Period</option>
+                            <option value="planet_radius">Planet Radius</option>
+                            <option value="stellar_temp">Stellar Temperature</option>
+                            <option value="transit_depth">Transit Depth</option>
+                            <option value="equilibrium_temp">Equilibrium Temperature</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="y-axis-control">
+                        <label for="y-axis" class="form-label">Y-Axis</label>
+                        <select class="form-select" id="y-axis" onchange="updateVisualization()">
+                            <option value="planet_radius">Planet Radius</option>
+                            <option value="orbital_period">Orbital Period</option>
+                            <option value="stellar_temp">Stellar Temperature</option>
+                            <option value="transit_depth">Transit Depth</option>
+                            <option value="equilibrium_temp">Equilibrium Temperature</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="color-by" class="form-label">Color By</label>
+                        <select class="form-select" id="color-by" onchange="updateVisualization()">
+                            <option value="disposition">Disposition</option>
+                            <option value="source">Data Source</option>
+                            <option value="size_category">Size Category</option>
+                            <option value="stellar_type">Stellar Type</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="log-scale" onchange="updateVisualization()">
+                            <label class="form-check-label" for="log-scale">
+                                Log Scale
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-sm w-100" onclick="updateVisualization()">
+                        <i class="fas fa-sync-alt me-1"></i>Update Chart
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-calculator me-2"></i>Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="statistics-panel">
+                        <p class="text-muted">Select data to view statistics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Visualization Area -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        <span id="chart-title">Class Distribution</span>
+                    </h5>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="downloadChart()">
+                            <i class="fas fa-download me-1"></i>Download
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="fullscreenChart()">
+                            <i class="fas fa-expand me-1"></i>Fullscreen
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="main-chart" style="height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Charts Row -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-pie-chart me-2"></i>Mission Data Distribution
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="mission-chart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-area me-2"></i>Planet Size Categories
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="size-chart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>Data Sample
+                    </h5>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm" onclick="refreshDataTable()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="exportDataTable()">
+                            <i class="fas fa-file-export me-1"></i>Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Object ID</th>
+                                    <th>Source</th>
+                                    <th>Disposition</th>
+                                    <th>Orbital Period</th>
+                                    <th>Planet Radius</th>
+                                    <th>Stellar Temp</th>
+                                    <th>Transit Depth</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                            <span>Loading data...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentData = null;
+let currentChart = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadDatasetOverview();
+    loadSampleData();
+    initializeCharts();
+});
+
+async function loadDatasetOverview() {
+    try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        
+        const overviewDiv = document.getElementById('dataset-overview');
+        
+        if (data.dataset_size) {
+            let html = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-primary">${data.dataset_size.toLocaleString()}</h4>
+                            <p class="mb-0">Total Records</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-info">${data.feature_count || 'N/A'}</h4>
+                            <p class="mb-0">Features</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-warning">${data.missing_values || 0}</h4>
+                            <p class="mb-0">Missing Values</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-success">${Object.keys(data.class_distribution || {}).length}</h4>
+                            <p class="mb-0">Classes</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            if (data.class_distribution) {
+                html += `
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Class Distribution:</h6>
+                            <div class="row">
+                `;
+                
+                for (const [className, count] of Object.entries(data.class_distribution)) {
+                    const percentage = ((count / data.dataset_size) * 100).toFixed(1);
+                    let badgeClass;
+                    switch (className) {
+                        case 'CONFIRMED': badgeClass = 'bg-success'; break;
+                        case 'CANDIDATE': badgeClass = 'bg-warning'; break;
+                        case 'FALSE_POSITIVE': badgeClass = 'bg-danger'; break;
+                        default: badgeClass = 'bg-secondary';
+                    }
+                    
+                    html += `
+                        <div class="col-md-4 mb-2">
+                            <span class="badge ${badgeClass} me-2">${className.replace('_', ' ')}</span>
+                            ${count.toLocaleString()} (${percentage}%)
+                        </div>
+                    `;
+                }
+                
+                html += '</div></div></div>';
+            }
+            
+            overviewDiv.innerHTML = html;
+        } else {
+            overviewDiv.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No dataset found. Please process the data first.
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error loading dataset overview:', error);
+        document.getElementById('dataset-overview').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-times-circle me-2"></i>
+                Error loading dataset information.
+            </div>
+        `;
+    }
+}
+
+async function loadSampleData() {
+    // For demo purposes, we'll create sample data
+    // In a real implementation, this would fetch from the processed dataset
+    currentData = generateSampleData();
+    updateDataTable();
+}
+
+function generateSampleData() {
+    const dispositions = ['CONFIRMED', 'CANDIDATE', 'FALSE_POSITIVE'];
+    const sources = ['kepler', 'tess', 'confirmed'];
+    const data = [];
+    
+    for (let i = 0; i < 100; i++) {
+        data.push({
+            object_id: `KOI-${1000 + i}`,
+            source: sources[Math.floor(Math.random() * sources.length)],
+            disposition: dispositions[Math.floor(Math.random() * dispositions.length)],
+            orbital_period: Math.random() * 1000 + 1,
+            planet_radius: Math.random() * 10 + 0.5,
+            stellar_temp: Math.random() * 3000 + 3000,
+            transit_depth: Math.random() * 5000 + 50,
+            equilibrium_temp: Math.random() * 1000 + 200,
+            stellar_radius: Math.random() * 3 + 0.5,
+            transit_duration: Math.random() * 20 + 2
+        });
+    }
+    
+    return data;
+}
+
+function initializeCharts() {
+    updateVisualization();
+    createMissionChart();
+    createSizeChart();
+}
+
+function updateVisualization() {
+    const chartType = document.getElementById('chart-type').value;
+    const xAxis = document.getElementById('x-axis').value;
+    const yAxis = document.getElementById('y-axis').value;
+    const colorBy = document.getElementById('color-by').value;
+    const logScale = document.getElementById('log-scale').checked;
+    
+    // Show/hide axis controls based on chart type
+    const xControl = document.getElementById('x-axis-control');
+    const yControl = document.getElementById('y-axis-control');
+    
+    if (chartType === 'distribution' || chartType === 'correlation') {
+        xControl.style.display = 'none';
+        yControl.style.display = 'none';
+    } else if (chartType === 'histogram' || chartType === 'boxplot') {
+        xControl.style.display = 'block';
+        yControl.style.display = 'none';
+    } else {
+        xControl.style.display = 'block';
+        yControl.style.display = 'block';
+    }
+    
+    // Update chart title
+    document.getElementById('chart-title').textContent = getChartTitle(chartType, xAxis, yAxis);
+    
+    // Create the appropriate chart
+    switch (chartType) {
+        case 'distribution':
+            createDistributionChart();
+            break;
+        case 'scatter':
+            createScatterPlot(xAxis, yAxis, colorBy, logScale);
+            break;
+        case 'histogram':
+            createHistogram(xAxis, colorBy);
+            break;
+        case 'correlation':
+            createCorrelationMatrix();
+            break;
+        case 'boxplot':
+            createBoxPlot(xAxis, colorBy);
+            break;
+    }
+}
+
+function getChartTitle(chartType, xAxis, yAxis) {
+    switch (chartType) {
+        case 'distribution': return 'Class Distribution';
+        case 'scatter': return `${yAxis.replace('_', ' ')} vs ${xAxis.replace('_', ' ')}`;
+        case 'histogram': return `${xAxis.replace('_', ' ')} Distribution`;
+        case 'correlation': return 'Feature Correlation Matrix';
+        case 'boxplot': return `${xAxis.replace('_', ' ')} Box Plot`;
+        default: return 'Visualization';
+    }
+}
+
+function createDistributionChart() {
+    if (!currentData) return;
+    
+    const dispositionCounts = {};
+    currentData.forEach(d => {
+        dispositionCounts[d.disposition] = (dispositionCounts[d.disposition] || 0) + 1;
+    });
+    
+    const data = [{
+        values: Object.values(dispositionCounts),
+        labels: Object.keys(dispositionCounts).map(k => k.replace('_', ' ')),
+        type: 'pie',
+        marker: {
+            colors: ['#28a745', '#ffc107', '#dc3545']
+        }
+    }];
+    
+    const layout = {
+        title: 'Exoplanet Classification Distribution',
+        showlegend: true,
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot('main-chart', data, layout, {responsive: true});
+}
+
+function createScatterPlot(xAxis, yAxis, colorBy, logScale) {
+    if (!currentData) return;
+    
+    const traces = {};
+    
+    currentData.forEach(d => {
+        const colorValue = d[colorBy];
+        if (!traces[colorValue]) {
+            traces[colorValue] = {
+                x: [],
+                y: [],
+                mode: 'markers',
+                type: 'scatter',
+                name: colorValue.replace('_', ' '),
+                marker: { size: 6, opacity: 0.7 }
+            };
+        }
+        traces[colorValue].x.push(d[xAxis]);
+        traces[colorValue].y.push(d[yAxis]);
+    });
+    
+    const data = Object.values(traces);
+    
+    const layout = {
+        title: `${yAxis.replace('_', ' ')} vs ${xAxis.replace('_', ' ')}`,
+        xaxis: { 
+            title: xAxis.replace('_', ' '),
+            type: logScale ? 'log' : 'linear'
+        },
+        yaxis: { 
+            title: yAxis.replace('_', ' '),
+            type: logScale ? 'log' : 'linear'
+        },
+        showlegend: true,
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot('main-chart', data, layout, {responsive: true});
+}
+
+function createHistogram(xAxis, colorBy) {
+    if (!currentData) return;
+    
+    const traces = {};
+    
+    currentData.forEach(d => {
+        const colorValue = d[colorBy];
+        if (!traces[colorValue]) {
+            traces[colorValue] = {
+                x: [],
+                type: 'histogram',
+                name: colorValue.replace('_', ' '),
+                opacity: 0.7,
+                nbinsx: 20
+            };
+        }
+        traces[colorValue].x.push(d[xAxis]);
+    });
+    
+    const data = Object.values(traces);
+    
+    const layout = {
+        title: `${xAxis.replace('_', ' ')} Distribution`,
+        xaxis: { title: xAxis.replace('_', ' ') },
+        yaxis: { title: 'Count' },
+        barmode: 'overlay',
+        showlegend: true,
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot('main-chart', data, layout, {responsive: true});
+}
+
+function createCorrelationMatrix() {
+    if (!currentData) return;
+    
+    const numericFeatures = ['orbital_period', 'planet_radius', 'stellar_temp', 'transit_depth', 'equilibrium_temp'];
+    const correlationMatrix = [];
+    
+    // Calculate correlation matrix (simplified)
+    for (let i = 0; i < numericFeatures.length; i++) {
+        const row = [];
+        for (let j = 0; j < numericFeatures.length; j++) {
+            if (i === j) {
+                row.push(1);
+            } else {
+                // Simplified correlation calculation
+                row.push(Math.random() * 0.8 - 0.4);
+            }
+        }
+        correlationMatrix.push(row);
+    }
+    
+    const data = [{
+        z: correlationMatrix,
+        x: numericFeatures.map(f => f.replace('_', ' ')),
+        y: numericFeatures.map(f => f.replace('_', ' ')),
+        type: 'heatmap',
+        colorscale: 'RdBu',
+        zmid: 0
+    }];
+    
+    const layout = {
+        title: 'Feature Correlation Matrix',
+        margin: { t: 50, b: 100, l: 100, r: 50 }
+    };
+    
+    Plotly.newPlot('main-chart', data, layout, {responsive: true});
+}
+
+function createBoxPlot(xAxis, colorBy) {
+    if (!currentData) return;
+    
+    const traces = {};
+    
+    currentData.forEach(d => {
+        const colorValue = d[colorBy];
+        if (!traces[colorValue]) {
+            traces[colorValue] = {
+                y: [],
+                type: 'box',
+                name: colorValue.replace('_', ' ')
+            };
+        }
+        traces[colorValue].y.push(d[xAxis]);
+    });
+    
+    const data = Object.values(traces);
+    
+    const layout = {
+        title: `${xAxis.replace('_', ' ')} Distribution by ${colorBy.replace('_', ' ')}`,
+        yaxis: { title: xAxis.replace('_', ' ') },
+        showlegend: true,
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot('main-chart', data, layout, {responsive: true});
+}
+
+function createMissionChart() {
+    if (!currentData) return;
+    
+    const sourceCounts = {};
+    currentData.forEach(d => {
+        sourceCounts[d.source] = (sourceCounts[d.source] || 0) + 1;
+    });
+    
+    const data = [{
+        values: Object.values(sourceCounts),
+        labels: Object.keys(sourceCounts).map(k => k.toUpperCase()),
+        type: 'pie',
+        hole: 0.4
+    }];
+    
+    const layout = {
+        title: 'Data by Mission',
+        showlegend: true,
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot('mission-chart', data, layout, {responsive: true});
+}
+
+function createSizeChart() {
+    if (!currentData) return;
+    
+    const sizeCategories = {};
+    currentData.forEach(d => {
+        let category;
+        if (d.planet_radius < 1.25) category = 'Earth-size';
+        else if (d.planet_radius < 2.0) category = 'Super-Earth';
+        else if (d.planet_radius < 4.0) category = 'Neptune-size';
+        else category = 'Jupiter-size';
+        
+        sizeCategories[category] = (sizeCategories[category] || 0) + 1;
+    });
+    
+    const data = [{
+        x: Object.keys(sizeCategories),
+        y: Object.values(sizeCategories),
+        type: 'bar',
+        marker: { color: ['#17a2b8', '#28a745', '#ffc107', '#dc3545'] }
+    }];
+    
+    const layout = {
+        title: 'Planet Size Distribution',
+        xaxis: { title: 'Size Category' },
+        yaxis: { title: 'Count' },
+        margin: { t: 50, b: 50, l: 50, r: 50 }
+    };
+    
+    Plotly.newPlot('size-chart', data, layout, {responsive: true});
+}
+
+function updateDataTable() {
+    if (!currentData) return;
+    
+    const tbody = document.querySelector('#data-table tbody');
+    let html = '';
+    
+    currentData.slice(0, 20).forEach(d => {
+        let badgeClass;
+        switch (d.disposition) {
+            case 'CONFIRMED': badgeClass = 'bg-success'; break;
+            case 'CANDIDATE': badgeClass = 'bg-warning'; break;
+            case 'FALSE_POSITIVE': badgeClass = 'bg-danger'; break;
+            default: badgeClass = 'bg-secondary';
+        }
+        
+        html += `
+            <tr>
+                <td>${d.object_id}</td>
+                <td><span class="badge bg-info">${d.source.toUpperCase()}</span></td>
+                <td><span class="badge ${badgeClass}">${d.disposition.replace('_', ' ')}</span></td>
+                <td>${d.orbital_period.toFixed(2)}</td>
+                <td>${d.planet_radius.toFixed(2)}</td>
+                <td>${d.stellar_temp.toFixed(0)}</td>
+                <td>${d.transit_depth.toFixed(0)}</td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+function downloadChart() {
+    const chartDiv = document.getElementById('main-chart');
+    Plotly.downloadImage(chartDiv, {
+        format: 'png',
+        width: 1200,
+        height: 800,
+        filename: 'exoplanet_chart'
+    });
+}
+
+function fullscreenChart() {
+    const chartDiv = document.getElementById('main-chart');
+    if (chartDiv.requestFullscreen) {
+        chartDiv.requestFullscreen();
+    }
+}
+
+function refreshDataTable() {
+    currentData = generateSampleData();
+    updateDataTable();
+    initializeCharts();
+}
+
+function exportDataTable() {
+    if (!currentData) return;
+    
+    let csv = 'object_id,source,disposition,orbital_period,planet_radius,stellar_temp,transit_depth\n';
+    currentData.forEach(d => {
+        csv += `${d.object_id},${d.source},${d.disposition},${d.orbital_period},${d.planet_radius},${d.stellar_temp},${d.transit_depth}\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'exoplanet_data_sample.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

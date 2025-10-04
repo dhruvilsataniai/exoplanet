@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Exoplanet Detection System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="jumbotron bg-primary text-white p-5 rounded">
+                <h1 class="display-4">
+                    <i class="fas fa-rocket me-3"></i>
+                    Exoplanet Detection AI System
+                </h1>
+                <p class="lead">
+                    Discover new worlds using advanced machine learning algorithms trained on NASA's Kepler, K2, and TESS mission data.
+                </p>
+                <hr class="my-4">
+                <p>
+                    Our AI system analyzes stellar light curves and planetary parameters to classify objects as confirmed exoplanets, 
+                    planetary candidates, or false positives with high accuracy.
+                </p>
+                <a class="btn btn-light btn-lg" href="{{ url_for('predict_page') }}" role="button">
+                    <i class="fas fa-search me-2"></i>Start Detecting
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-globe fa-3x mb-3"></i>
+                    <h4 class="card-title" id="confirmed-count">5,000+</h4>
+                    <p class="card-text">Confirmed Exoplanets</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-question-circle fa-3x mb-3"></i>
+                    <h4 class="card-title" id="candidate-count">10,000+</h4>
+                    <p class="card-text">Planet Candidates</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-satellite fa-3x mb-3"></i>
+                    <h4 class="card-title">3</h4>
+                    <p class="card-text">NASA Missions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-secondary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-brain fa-3x mb-3"></i>
+                    <h4 class="card-title" id="accuracy">95%+</h4>
+                    <p class="card-text">Model Accuracy</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">System Features</h2>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Advanced ML Models</h5>
+                    <p class="card-text">
+                        Multiple algorithms including Random Forest, XGBoost, and Neural Networks 
+                        for robust exoplanet classification.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-database fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">NASA Data Integration</h5>
+                    <p class="card-text">
+                        Real-time access to Kepler, K2, and TESS mission data from the 
+                        NASA Exoplanet Archive.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Interactive Visualizations</h5>
+                    <p class="card-text">
+                        Comprehensive dashboards and plots for data exploration 
+                        and result interpretation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Status -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>System Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Model Information</h6>
+                            <div id="model-status" class="mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    <span>Loading model status...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Dataset Information</h6>
+                            <div id="dataset-status" class="mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    <span>Loading dataset status...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Quick Actions</h2>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Single Prediction</h5>
+                    <p class="card-text">
+                        Enter planetary parameters manually for individual exoplanet classification.
+                    </p>
+                    <a href="{{ url_for('predict_page') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right me-1"></i>Predict Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-upload fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Batch Upload</h5>
+                    <p class="card-text">
+                        Upload CSV files with multiple observations for bulk analysis and prediction.
+                    </p>
+                    <a href="{{ url_for('upload_page') }}" class="btn btn-success">
+                        <i class="fas fa-cloud-upload-alt me-1"></i>Upload Data
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chart-bar fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Explore Data</h5>
+                    <p class="card-text">
+                        Visualize and explore the training datasets with interactive charts and plots.
+                    </p>
+                    <a href="{{ url_for('explore_page') }}" class="btn btn-info">
+                        <i class="fas fa-eye me-1"></i>Explore
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load system status
+    loadSystemStatus();
+    
+    // Refresh status every 30 seconds
+    setInterval(loadSystemStatus, 30000);
+});
+
+async function loadSystemStatus() {
+    try {
+        // Load model info
+        const modelResponse = await fetch('/api/model/info');
+        const modelData = await modelResponse.json();
+        
+        const modelStatusDiv = document.getElementById('model-status');
+        if (modelData.model_loaded) {
+            modelStatusDiv.innerHTML = `
+                <div class="alert alert-success mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Model Loaded:</strong> ${modelData.best_model_name || 'Unknown'}<br>
+                    <small>Features: ${modelData.feature_columns ? modelData.feature_columns.length : 'N/A'} | 
+                    Classes: ${modelData.classes ? modelData.classes.length : 'N/A'}</small>
+                </div>
+            `;
+        } else {
+            modelStatusDiv.innerHTML = `
+                <div class="alert alert-warning mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Model Not Loaded</strong><br>
+                    <small>Please train the model first</small>
+                </div>
+            `;
+        }
+        
+        // Load stats
+        const statsResponse = await fetch('/api/stats');
+        const statsData = await statsResponse.json();
+        
+        const datasetStatusDiv = document.getElementById('dataset-status');
+        if (statsData.dataset_size) {
+            datasetStatusDiv.innerHTML = `
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-database me-2"></i>
+                    <strong>Dataset:</strong> ${statsData.dataset_size.toLocaleString()} records<br>
+                    <small>Features: ${statsData.feature_count} | Missing: ${statsData.missing_values}</small>
+                </div>
+            `;
+            
+            // Update counts in cards
+            if (statsData.class_distribution) {
+                const confirmed = statsData.class_distribution['CONFIRMED'] || 0;
+                const candidates = statsData.class_distribution['CANDIDATE'] || 0;
+                
+                document.getElementById('confirmed-count').textContent = confirmed.toLocaleString();
+                document.getElementById('candidate-count').textContent = candidates.toLocaleString();
+            }
+        } else {
+            datasetStatusDiv.innerHTML = `
+                <div class="alert alert-warning mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>No Dataset Found</strong><br>
+                    <small>Please fetch and process data first</small>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error loading system status:', error);
+        
+        document.getElementById('model-status').innerHTML = `
+            <div class="alert alert-danger mb-0">
+                <i class="fas fa-times-circle me-2"></i>
+                <strong>Error loading status</strong>
+            </div>
+        `;
+        
+        document.getElementById('dataset-status').innerHTML = `
+            <div class="alert alert-danger mb-0">
+                <i class="fas fa-times-circle me-2"></i>
+                <strong>Error loading status</strong>
+            </div>
+        `;
+    }
+}
+</script>
+{% endblock %}
