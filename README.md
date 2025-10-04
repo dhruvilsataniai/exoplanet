@@ -20,7 +20,7 @@ exoplanet/
 ├── notebooks/             # Jupyter notebooks for EDA and experimentation
 ├── src/                   # Source code
 │   ├── data_processing/   # Data loading and preprocessing
-│   ├── models/           # ML model implementations
+│   ├── training_scripts/           # ML model implementations
 │   └── api/              # Flask API endpoints
 ├── static/               # CSS, JS, and other static files
 ├── templates/            # HTML templates
@@ -57,8 +57,8 @@ python3 src/data_processing/preprocess.py
 
 ### Model Training
 ```bash
-python3 src/models/train_models.py
-python3 src/models/enhanced_training.py
+python3 src/training_scripts/train_models.py
+python3 src/training_scripts/enhanced_training.py
 ```
 
 ### Web Application
