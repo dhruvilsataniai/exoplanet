@@ -15,17 +15,15 @@ An advanced machine learning system for detecting and classifying exoplanets usi
 
 ```
 exoplanet/
-├── data/                   # Raw and processed datasets
-├── models/                 # Trained ML models
-├── notebooks/             # Jupyter notebooks for EDA and experimentation
+├── data/                  # Raw and processed datasets
+├── models/                # Trained ML models
 ├── src/                   # Source code
+│   ├── api/               # Flask API endpoints
 │   ├── data_processing/   # Data loading and preprocessing
-│   ├── training_scripts/           # ML model implementations
-│   └── api/              # Flask API endpoints
-├── static/               # CSS, JS, and other static files
-├── templates/            # HTML templates
-├── tests/                # Unit tests
-└── requirements.txt      # Python dependencies
+│   └── training_scripts/  # ML model implementations
+├── static/                # CSS, JS, and other static files
+├── templates/             # HTML templates
+└── requirements.txt       # Python dependencies
 ```
 
 ## Installation
@@ -58,7 +56,6 @@ python3 src/data_processing/preprocess.py
 ### Model Training
 ```bash
 python3 src/training_scripts/train_models.py
-python3 src/training_scripts/enhanced_training.py
 ```
 
 ### Web Application
